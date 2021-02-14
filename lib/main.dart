@@ -16,28 +16,13 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Purishop',
         theme: ThemeData(
-            primarySwatch: Colors.green,
+            primarySwatch: Colors.purple,
             accentColor: Colors.deepOrangeAccent,
             fontFamily: 'Lato'),
         home: ProductsOverviewScreen(),
         routes: {
           ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
         },
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Purishop'),
-      ),
-      body: Center(
-        child: Text('Let\'s build a shop app!'),
       ),
     );
   }
