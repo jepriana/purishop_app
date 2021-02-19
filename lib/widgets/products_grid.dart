@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:purishop_app/widgets/product_item.dart';
 import '../providers/products.dart';
-import '../providers/product.dart';
-import './product_item.dart';
 import 'package:provider/provider.dart';
 
 class ProductsGrid extends StatelessWidget {
@@ -17,11 +16,14 @@ class ProductsGrid extends StatelessWidget {
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
-      itemBuilder: (ctx, i) => ProductItem(
-        products[i].id,
-        products[i].title,
-        products[i].price,
-        products[i].imageUrl,
+      itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+        value: products[i],
+        child: ProductItem(
+            // products[i].id,
+            // products[i].title,
+            // products[i].price,
+            // products[i].imageUrl,
+            ),
       ),
     );
   }
