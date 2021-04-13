@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:purishop_app/screens/edit_product_screen.dart';
 
 class UserProductItem extends StatelessWidget {
+  final String id;
   final String title;
   final String imageUrl;
-  const UserProductItem(this.title, this.imageUrl, {Key key}) : super(key: key);
+  const UserProductItem(this.id, this.title, this.imageUrl, {Key key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +20,15 @@ class UserProductItem extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-              icon: Icon(Icons.edit),
+              icon: Icon(Icons.edit_rounded),
               color: Theme.of(context).accentColor,
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(EditProductScreen.routeName, arguments: id);
+              },
             ),
             IconButton(
-                icon: Icon(Icons.delete),
+                icon: Icon(Icons.delete_rounded),
                 color: Theme.of(context).errorColor,
                 onPressed: () {}),
           ],
