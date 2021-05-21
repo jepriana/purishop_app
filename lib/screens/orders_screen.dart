@@ -4,26 +4,63 @@ import '../providers/orders.dart' show Orders;
 import '../widgets/order_item.dart';
 import '../widgets/app_drawer.dart';
 
-class OrdersScreen extends StatelessWidget {
+class OrdersScreen extends StatefulWidget {
   static const routeName = '/orders';
-  const OrdersScreen({Key key}) : super(key: key);
+
+  @override
+  _OrdersScreenState createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  Future _orderFuture;
+  Future _obtainOrdersFuture() {
+    return Provider.of<Orders>(context, listen: false).fetchAndSetOrders();
+  }
+
+  @override
+  void initState() {
+    _orderFuture = _obtainOrdersFuture();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final orderData = Provider.of<Orders>(context);
+    //final orderData = Provider.of<Orders>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Your Orders'),
       ),
       drawer: AppDrawer(),
-      body: orderData.orders.length > 0
-          ? ListView.builder(
-              itemCount: orderData.orders.length,
-              itemBuilder: (ctx, i) => OrderItem(orderData.orders[i]),
-            )
-          : Center(
-              child: Text('You don\'t have an order yet'),
-            ),
+      body: FutureBuilder(
+        future: _orderFuture,
+        builder: (ctx, dataSnapshot) {
+          if (dataSnapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            if (dataSnapshot.hasError) {
+              return Center(
+                child: Text(dataSnapshot.error.toString()),
+              );
+            } else {
+              return Consumer<Orders>(
+                builder: (ctx, orderData, child) {
+                  return (orderData.orders.length > 0
+                      ? ListView.builder(
+                          itemCount: orderData.orders.length,
+                          itemBuilder: (ctx, i) =>
+                              OrderItem(orderData.orders[i]),
+                        )
+                      : Center(
+                          child: Text('You don\'t have an order yet'),
+                        ));
+                },
+              );
+            }
+          }
+        },
+      ),
     );
   }
 }
