@@ -23,6 +23,9 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
+  final String authToken;
+
+  Orders(this._orders, {this.authToken});
 
   List<OrderItem> get orders {
     return [..._orders];
@@ -32,6 +35,7 @@ class Orders with ChangeNotifier {
     final url = Uri.https(
       'purishop-5758-default-rtdb.firebaseio.com',
       '/orders.json',
+      {'auth': authToken},
     );
     final response = await http.get(url);
     final List<OrderItem> loadedOrders = [];
@@ -68,6 +72,7 @@ class Orders with ChangeNotifier {
     final url = Uri.https(
       'purishop-5758-default-rtdb.firebaseio.com',
       '/orders.json',
+      {'auth': authToken},
     );
     try {
       final timestamp = DateTime.now();

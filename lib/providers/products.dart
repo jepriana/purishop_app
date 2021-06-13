@@ -43,6 +43,10 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  final String authToken;
+  final String userId;
+
+  Products(this._items, {this.authToken, this.userId});
   // var _showFavoritesOnly = false;
 
   List<Product> get items {
@@ -57,33 +61,42 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url = Uri.https(
-      'purishop-5758-default-rtdb.firebaseio.com',
-      '/products.json',
-    );
-    try {
+    if (authToken != null) {
+      var url = Uri.https(
+        'purishop-5758-default-rtdb.firebaseio.com',
+        '/products.json',
+        {'auth': authToken},
+      );
       final response = await http.get(url);
-      final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
-        return null;
-      }
-      final List<Product> loadedProducts = [];
-      extractedData.forEach((prodID, prodData) {
-        loadedProducts.add(
-          Product(
-            id: prodID,
-            title: prodData['title'],
-            description: prodData['description'],
-            price: prodData['price'],
-            imageUrl: prodData['imageUrl'],
-            isFavorite: prodData['isFavorite'],
-          ),
+      if (response != null) {
+        final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
+        if (extractedData == null) {
+          return null;
+        }
+        url = Uri.https(
+          'purishop-5758-default-rtdb.firebaseio.com',
+          '/userFavorites/$userId.json',
+          {'auth': authToken},
         );
-      });
-      _items = loadedProducts;
-      notifyListeners();
-    } catch (error) {
-      throw error;
+        final favoriteRespnse = await http.get(url);
+        final favoriteData = jsonDecode(favoriteRespnse.body);
+        final List<Product> loadedProducts = [];
+        extractedData.forEach((prodID, prodData) {
+          loadedProducts.add(
+            Product(
+              id: prodID,
+              title: prodData['title'],
+              description: prodData['description'],
+              price: prodData['price'],
+              imageUrl: prodData['imageUrl'],
+              isFavorite:
+                  favoriteData == null ? false : favoriteData[prodID] ?? false,
+            ),
+          );
+        });
+        _items = loadedProducts;
+        notifyListeners();
+      }
     }
   }
 
@@ -91,6 +104,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'purishop-5758-default-rtdb.firebaseio.com',
       '/products.json',
+      {'auth': authToken},
     );
     try {
       final response = await http.post(
@@ -101,7 +115,6 @@ class Products with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
-            'isFavorite': product.isFavorite,
           },
         ),
       );
@@ -126,6 +139,7 @@ class Products with ChangeNotifier {
       final url = Uri.https(
         'purishop-5758-default-rtdb.firebaseio.com',
         '/products/${newProduct.id}.json',
+        {'auth': authToken},
       );
       try {
         await http.patch(
@@ -151,6 +165,7 @@ class Products with ChangeNotifier {
     final url = Uri.https(
       'purishop-5758-default-rtdb.firebaseio.com',
       '/products/$id.json',
+      {'auth': authToken},
     );
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     var existingProduct = _items[existingProductIndex];

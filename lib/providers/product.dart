@@ -25,21 +25,23 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleFavoriteStatus() async {
+  void toggleFavoriteStatus(
+    String token,
+    String userId,
+  ) async {
     final oldStatus = isFavorite;
     this.isFavorite = !this.isFavorite;
     notifyListeners();
     final url = Uri.https(
       'purishop-5758-default-rtdb.firebaseio.com',
-      '/products/$id.json',
+      '/userFavorites/$userId/$id.json',
+      {'auth': token},
     );
     try {
-      final response = await http.patch(
+      final response = await http.put(
         url,
         body: jsonEncode(
-          {
-            'isFavorite': this.isFavorite,
-          },
+          this.isFavorite,
         ),
       );
       if (response.statusCode >= 400) {
