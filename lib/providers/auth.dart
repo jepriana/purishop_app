@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:purishop_app/models/http_exception.dart';
 
 class Auth with ChangeNotifier {
   String _token;
@@ -28,8 +29,11 @@ class Auth with ChangeNotifier {
           },
         ),
       );
-      print(jsonDecode(response.body));
-
+      //print(jsonDecode(response.body));
+      final responseData = jsonDecode(response.body);
+      if (responseData['error'] != null) {
+        throw HttpException(responseData['error']['message']);
+      }
       final userLogedIn = jsonDecode(response.body);
       this._userId = userLogedIn['localId'];
       this._token = userLogedIn['idToken'];
@@ -41,7 +45,7 @@ class Auth with ChangeNotifier {
         ),
       );
     } catch (error) {
-      print(error);
+      //print(error);
       throw error;
     }
   }
