@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:purishop_app/providers/auth.dart';
-import 'package:purishop_app/screens/auth_screen.dart';
+import './providers/auth.dart';
+import './screens/auth_screen.dart';
+import './screens/splash_screen.dart';
 import './screens/edit_product_screen.dart';
 import './screens/orders_screen.dart';
 import './providers/cart.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
               Orders(
             prevOrders == null ? [] : prevOrders.orders,
             authToken: auth.token,
+            userId: auth.userId,
           ),
         ),
       ],
@@ -61,7 +63,16 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.purple,
               accentColor: Colors.deepOrangeAccent,
               fontFamily: 'Lato'),
-          home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+          home: auth.isAuth
+              ? ProductsOverviewScreen()
+              : FutureBuilder(
+                  future: auth.autoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? SplashScreen()
+                          : AuthScreen(),
+                ),
           routes: {
             ProductDetailScreen.routeName: (ctx) => ProductDetailScreen(),
             CartScreen.routeName: (ctx) => CartScreen(),

@@ -60,12 +60,21 @@ class Products with ChangeNotifier {
     return _items.where((prodItem) => prodItem.isFavorite).toList();
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString = filterByUser
+        ? {
+            'auth': authToken,
+            'orderBy': '"creatorId"',
+            'equalTo': '"$userId"',
+          }
+        : {
+            'auth': authToken,
+          };
     if (authToken != null) {
       var url = Uri.https(
         'purishop-5758-default-rtdb.firebaseio.com',
         '/products.json',
-        {'auth': authToken},
+        filterString,
       );
       final response = await http.get(url);
       if (response != null) {
@@ -76,7 +85,9 @@ class Products with ChangeNotifier {
         url = Uri.https(
           'purishop-5758-default-rtdb.firebaseio.com',
           '/userFavorites/$userId.json',
-          {'auth': authToken},
+          {
+            'auth': authToken,
+          },
         );
         final favoriteRespnse = await http.get(url);
         final favoriteData = jsonDecode(favoriteRespnse.body);
@@ -115,6 +126,7 @@ class Products with ChangeNotifier {
             'description': product.description,
             'price': product.price,
             'imageUrl': product.imageUrl,
+            'creatorId': userId,
           },
         ),
       );
